@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+
+# Capture / dev artifacts (not part of submission package)
+capture/raw_frames/
+capture/compo_video.mp4
+capture/compo_audio.wav
+capture/mux_compo.sh

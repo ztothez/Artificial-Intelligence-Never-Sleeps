@@ -1,0 +1,42 @@
+[
+  {
+    "stem": "scene02a_bigbang",
+    "model": "black-forest-labs/FLUX.1-schnell",
+    "prompt": "cosmic singularity explosion, big bang burst of light and particles from void, scientific documentary, dark background, epic scale, cinematic still, 16:9, photoreal, no logos",
+    "url": "https://api.together.ai/shrt/nTLHAKKrKnDOABjO",
+    "output": "source/visuals/raw/scene02a_bigbang.png",
+    "generated_at": "2026-07-02T20:40:53.657859+00:00"
+  },
+  {
+    "stem": "scene02b_stars",
+    "model": "black-forest-labs/FLUX.1-schnell",
+    "prompt": "expanding nebula and young galaxy forming from cosmic dust, deep space, blue and amber gases, scientific documentary, cinematic still, 16:9, photoreal, no logos",
+    "url": "https://api.together.ai/shrt/slHIfjtK3qOfJto2",
+    "output": "source/visuals/raw/scene02b_stars.png",
+    "generated_at": "2026-07-02T20:40:57.674521+00:00"
+  },
+  {
+    "stem": "scene02c_life",
+    "model": "black-forest-labs/FLUX.1-schnell",
+    "prompt": "DNA double helix emerging from primordial ocean light, microscopic to macro, bioluminescent, scientific evolution documentary, cinematic still, 16:9, photoreal, no logos",
+    "url": "https://api.together.ai/shrt/FIdOzCssgJJWMfkK",
+    "output": "source/visuals/raw/scene02c_life.png",
+    "generated_at": "2026-07-02T20:41:01.059072+00:00"
+  },
+  {
+    "stem": "scene02d_silicon",
+    "model": "black-forest-labs/FLUX.1-schnell",
+    "prompt": "silicon wafer and integrated circuit forming from sand crystals, technology evolution, macro photography, cold blue light, cinematic still, 16:9, photoreal, no logos",
+    "url": "https://api.together.ai/shrt/Vyauu9VmYHIlLYII",
+    "output": "source/visuals/raw/scene02d_silicon.png",
+    "generated_at": "2026-07-02T20:41:04.190814+00:00"
+  },
+  {
+    "stem": "scene02e_neural",
+    "model": "black-forest-labs/FLUX.1.1-pro",
+    "prompt": "human neural network merging with digital graph nodes, brain becomes circuit, evolution endpoint, cinematic still, cold blue, 16:9, photoreal, no logos",
+    "url": "https://api.together.ai/shrt/sg1crpQ46PRB1QVT",
+    "output": "source/visuals/raw/scene02e_neural.png",
+    "generated_at": "2026-07-02T20:41:09.043875+00:00"
+  }
+]

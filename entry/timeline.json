@@ -1,0 +1,203 @@
+{
+  "fps": 60,
+  "width": 1920,
+  "height": 1080,
+  "duration": 122.5,
+  "segments": [
+    {
+      "kind": "raw",
+      "name": "scene01_origin",
+      "duration": 4.0,
+      "motion": "zoom_in_slow",
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "evolution",
+      "name": "scene02_evolution",
+      "duration": 12.8,
+      "motion": null,
+      "loop": false,
+      "fx": "evolution",
+      "names": [
+        "scene02a_bigbang",
+        "scene02b_stars",
+        "scene02c_life",
+        "scene02d_silicon",
+        "scene02e_neural"
+      ]
+    },
+    {
+      "kind": "terminal",
+      "name": "ui_spinner",
+      "duration": 1.6,
+      "motion": null,
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "black",
+      "name": "bridge_01",
+      "duration": 0.4,
+      "motion": null,
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "raw",
+      "name": "scene03_archive",
+      "duration": 6.0,
+      "motion": "pan_glitch",
+      "loop": false,
+      "fx": "archive",
+      "names": null
+    },
+    {
+      "kind": "raw",
+      "name": "scene04_almost",
+      "duration": 5.2,
+      "motion": "zoom_out",
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "terminal",
+      "name": "ui_access_denied",
+      "duration": 3.0,
+      "motion": null,
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "raw",
+      "name": "scene05_denied_bg",
+      "duration": 4.0,
+      "motion": "zoom_in_slow",
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "raw",
+      "name": "scene06_datacenter",
+      "duration": 6.0,
+      "motion": "dolly_pulse",
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "terminal",
+      "name": "ui_deploy_terminal",
+      "duration": 9.0,
+      "motion": null,
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "raw",
+      "name": "scene08a_inference",
+      "duration": 5.0,
+      "motion": "zoom_in",
+      "loop": false,
+      "fx": "inference",
+      "names": null
+    },
+    {
+      "kind": "raw",
+      "name": "scene08b_graph",
+      "duration": 7.0,
+      "motion": "pan_right",
+      "loop": false,
+      "fx": "graph",
+      "names": null
+    },
+    {
+      "kind": "raw",
+      "name": "scene07_hands",
+      "duration": 5.0,
+      "motion": "pan_right",
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "tunnel",
+      "name": "scene08_tunnel",
+      "duration": 6.0,
+      "motion": null,
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "raw",
+      "name": "scene11b_binary",
+      "duration": 5.0,
+      "motion": "pan_down",
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "raw",
+      "name": "scene11a_statue",
+      "duration": 5.0,
+      "motion": "zoom_in",
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "raw",
+      "name": "scene09_pov",
+      "duration": 5.0,
+      "motion": "zoom_out",
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "terminal",
+      "name": "ui_prompt_guardrails",
+      "duration": 8.3,
+      "motion": null,
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "black",
+      "name": "bridge_tagline",
+      "duration": 12.0,
+      "motion": null,
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "raw",
+      "name": "scene12_eye",
+      "duration": 5.0,
+      "motion": "zoom_in_eye",
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "terminal",
+      "name": "ui_tagline",
+      "duration": 7.2,
+      "motion": null,
+      "loop": false,
+      "fx": null,
+      "names": null
+    }
+  ]
+}

@@ -10,6 +10,7 @@ from engine.assets import AssetCache
 from engine.palette import VOID
 from engine.terminal import TerminalRenderer
 from engine.tunnel import TokenStreamRenderer, TunnelRenderer
+from phase4_candidate_fx import apply_archive_reconstruction
 from player_fx import apply_fx
 from player_motions import crop_rect
 from timeline import H, W
@@ -70,12 +71,6 @@ class SceneRenderer:
             return frame
 
         if seg.kind == "raw":
-            if seg.name == "scene11b_binary":
-                frame = self._token_renderer().render(global_t, treble)
-                if seg.fx:
-                    frame = apply_fx(frame, seg.fx, global_t, self.size)
-                return frame
-
             return self._render_raw(seg, local_t, global_t)
 
         if seg.kind == "clip":
@@ -95,17 +90,24 @@ class SceneRenderer:
         a = self.assets.png_scaled(names[i], self.size)
         b = self.assets.png_scaled(names[i + 1], self.size)
         frame = a.copy()
-        b.set_alpha(int(255 * t))
+        eased = t * t * (3.0 - 2.0 * t)
+        b.set_alpha(int(255 * eased))
         frame.blit(b, (0, 0))
         if seg.fx:
             frame = apply_fx(frame, seg.fx, global_t, self.size)
         return frame
 
     def _render_raw(self, seg, local_t: float, global_t: float) -> pygame.Surface:
+        motion = seg.motion or ASSET_MOTIONS.get(seg.name, "zoom_in")
+        if motion == "static_full_frame":
+            frame = self.assets.png_scaled(seg.name, self.size).copy()
+            if seg.fx:
+                frame = apply_fx(frame, seg.fx, global_t, self.size)
+            return frame
+
         # Ken Burns on a 2× working surface so 1344×768 FLUX stills stay sharper at 1080p.
         hi = (self.width * 2, self.height * 2)
         src = self.assets.png_scaled(seg.name, hi)
-        motion = seg.motion or ASSET_MOTIONS.get(seg.name, "zoom_in")
         x, y, w, h = crop_rect(
             src.get_width(),
             src.get_height(),
@@ -126,4 +128,6 @@ class SceneRenderer:
             del arr
         if seg.fx:
             frame = apply_fx(frame, seg.fx, global_t, self.size)
+        if seg.name == "scene03_archive":
+            frame = apply_archive_reconstruction(frame, global_t)
         return frame

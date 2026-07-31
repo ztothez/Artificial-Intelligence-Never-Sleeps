@@ -23,6 +23,7 @@ from engine.renderer import SceneRenderer  # noqa: E402
 from timeline import AUDIO_DIR, FPS, locate, total_duration  # noqa: E402
 
 MUSIC_PATH = AUDIO_DIR / "music.wav"
+PLAYBACK_PATH = (ROOT / "source" / "audio" / "playback.wav").resolve()
 SHAKE_SEGMENTS = frozenset({"ui_access_denied", "scene05_denied_bg", "scene06_datacenter", "ui_tagline"})
 DEFAULT_HD = (1920, 1080)
 NATIVE_4K = (3840, 2160)
@@ -93,7 +94,7 @@ def parse_resolution(value: str) -> tuple[int, int]:
 
 
 class DemoEngine:
-    """Deterministic real-time player: frame_idx is the master clock."""
+    """Deterministic real-time player with audio-clock synchronization."""
 
     def __init__(self, args: argparse.Namespace) -> None:
         self.args = args
@@ -104,6 +105,8 @@ class DemoEngine:
         self.frame_ms = 1000.0 / FPS
         self._frame_renderer = FrameRenderer(self.size, self.frame_count)
         self.frame_idx = 0
+        self._audio_clock_enabled = False
+        self._skipped_frames = 0
         self._prof: dict[str, list[float]] = defaultdict(list)
 
     def _time_ms(self) -> float:
@@ -126,14 +129,42 @@ class DemoEngine:
     def start_audio(self) -> None:
         if self.args.no_audio:
             return
+        if not PLAYBACK_PATH.is_file():
+            raise FileNotFoundError(
+                "Required live audio master is missing: "
+                f"{PLAYBACK_PATH}\n"
+                "Re-extract the complete submission package; separate source-master "
+                "fallback playback is intentionally disabled."
+            )
+
         pygame.mixer.init(frequency=48000, size=-16, channels=2, buffer=2048)
-        narration = self.args.narration
-        if narration.exists():
-            pygame.mixer.Sound(str(narration)).play()
-        if MUSIC_PATH.exists():
-            pygame.mixer.music.load(str(MUSIC_PATH))
-            pygame.mixer.music.set_volume(self.args.music_volume)
-            pygame.mixer.music.play(0)
+        try:
+            pygame.mixer.music.load(str(PLAYBACK_PATH))
+        except pygame.error as exc:
+            raise RuntimeError(
+                f"Could not load required live audio master: {PLAYBACK_PATH}"
+            ) from exc
+
+        pygame.mixer.music.set_volume(1.0)
+        pygame.mixer.music.play(0)
+        self._audio_clock_enabled = True
+        print("Audio master: source/audio/playback.wav (final mix, unity gain)")
+        print(f"Audio master path: {PLAYBACK_PATH}")
+
+    def sync_to_audio(self) -> bool:
+        """Return whether the current visual frame is due on the audio timeline."""
+        if not self._audio_clock_enabled:
+            return True
+        position_ms = pygame.mixer.music.get_pos()
+        if position_ms < 0:
+            return True
+        target_frame = min(int(position_ms * FPS / 1000.0), self.frame_count)
+        if target_frame < self.frame_idx:
+            return False
+        if target_frame > self.frame_idx:
+            self._skipped_frames += target_frame - self.frame_idx
+            self.frame_idx = target_frame
+        return True
 
     def run(self) -> int:
         os.environ.setdefault("SDL_VIDEO_CENTERED", "1")
@@ -179,6 +210,9 @@ class DemoEngine:
                 elif event.type == pygame.KEYDOWN and event.key in (pygame.K_ESCAPE, pygame.K_q):
                     running = False
 
+            if not self.sync_to_audio():
+                clock.tick(1000)
+                continue
             if self.frame_idx >= self.frame_count:
                 break
 
@@ -229,6 +263,8 @@ class DemoEngine:
                 )
 
         pygame.quit()
+        if self._audio_clock_enabled:
+            print(f"Audio sync: {self._skipped_frames} late visual frame(s) skipped")
         print("Done.")
         return 0
 
@@ -254,8 +290,6 @@ def main() -> int:
         default=True,
         help="Enable in-player audio (off by default; final mix lives in the capture video)",
     )
-    parser.add_argument("--narration", type=Path, default=AUDIO_DIR / "narration.wav")
-    parser.add_argument("--music-volume", type=float, default=0.22)
     parser.add_argument("--screenshot", type=Path, default=ROOT / "entry" / "screenshot.png")
     parser.add_argument("--screenshot-at", type=float, default=118.5)
     parser.add_argument("--headless", action="store_true")

@@ -2,7 +2,7 @@
 
 **Compo:** AI Coding (Vibe Demo)  
 **Author:** ztothez  
-**Length:** 2:00 @ 1080p60
+**Length:** 122.5s @ 1080p60
 
 This folder is the **Partyman/USB submission package**. The parent `DemoScene/` repo is unchanged; only runtime deliverables are copied here.
 
@@ -21,11 +21,13 @@ submission/
 │   player_fx.py, player_motions.py, animate_raw.py
 │   engine/                  # FFT, terminal, tunnel, post-process, renderer
 │   visuals/raw/*.png        # 16× FLUX keyframes (16:9 narrative arc)
-│   audio/music.wav          # 3-act score (Stable Audio 3)
-│   audio/narration.wav      # Together Orpheus TTS + robot post-FX
+│   audio/playback.wav       # approved final live mix, 48 kHz mono PCM
+│   audio/music.wav          # 3-act score source/FFT master
+│   audio/narration.wav      # voice source master
+├── capture.sh                 # deterministic final video capture builder
 ├── capture/
 │   compo.mp4                # 1080p60 submission video (A/V muxed)
-└── requirements.txt         # runtime deps only (pygame, numpy, scipy)
+└── requirements.txt         # runtime deps only (pygame-ce, numpy, Pillow)
 ```
 
 **Excluded intentionally:** `visuals/ui/`, `visuals/animated/`, `rough_cut.mp4`, build scripts, API keys, `.venv`, raw frame dumps.
@@ -33,14 +35,15 @@ submission/
 ## Run (jury / compo PC)
 
 ```bash
-./entry/run.sh                         # fullscreen 1920×1080, ESC/Q quit
+./entry/run.sh                         # audio-enabled fullscreen 1920×1080, ESC/Q quit
 ./entry/run.sh --windowed --resolution 960x540   # preview window
-./entry/run.sh --headless --no-audio --duration 5   # smoke test
+./entry/run.sh --headless --duration 5              # smoke test
 ```
 
 Windows: `entry\run.bat`
 
-First run creates `.venv` and installs `requirements.txt`.
+First run creates `.venv`, upgrades pip, and installs compatible binary
+packages from `requirements.txt` for the detected Python version.
 
 ## Video & audio
 
@@ -49,23 +52,26 @@ First run creates `.venv` and installs `requirements.txt`.
 | Property | Value |
 |----------|-------|
 | Video | 1920×1080, 60fps, **122.5s**, H.264 (from parallel frame dump) |
-| Audio | AAC — remuxed narration + music (matched to Telegram/backup original) |
-| Narration | `source/audio/narration.wav` @ **1.0×** speed, volume **2.0×** in mix (clearer over bed) |
-| Music | `source/audio/music.wav` @ **1.0×**, volume **0.22×** (unchanged) |
-| Mastering | +16 dB pre-limiter, soft limiter **-1 dBFS** ceiling (Telegram limited loudness) |
+| Audio | AAC mono, 48 kHz — approved final narration + music mix |
+| Live playback | Required `source/audio/playback.wav` at unity gain; same approved mix. The player stops with a clear error if it is missing—no quieter source-master fallback is used. |
+| Capture builder | Also requires and muxes `source/audio/playback.wav`; no preserved-video, music-only, or other alternate audio route is used. |
+| Loudness | **-15.61 LUFS** integrated, **-1.42 dBTP** |
+| Source masters | `music.wav` (also used for FFT) and `narration.wav` |
 
-**Submission video:** `capture/compo.mp4` (122.5s, A/V muxed). Dev remux: `./capture/mux_compo.sh 122.5`.
+**Submission video:** `capture/compo.mp4` (122.5s, A/V muxed).
 
-> Note: older README text saying narration @ **2.30×** referred to DAW authoring of the export, **not** an ffmpeg `atempo` step on `narration.wav`. Applying `atempo=2.0,atempo=1.15` makes chipmunk audio — do not use that.
-
-The live player runs **silent** (`--no-audio` for capture). Audio exists only in `compo.mp4` for jury screening. Executable timeline must still match the video: deterministic `frame_idx` clock, no MP4 playback in player.
+The entry launchers pass `--audio` by default so the executable starts the
+approved final mix. Running `source/demo_player.py` directly remains silent
+unless `--audio` is passed. During live playback, the audio position is the
+master clock and late visual frames are dropped to preserve synchronization.
+Offline frame rendering remains deterministic.
 
 **Do not substitute** other `compo*.mp4` variants from the dev repo — only `submission/capture/compo.mp4` is the submission mix.
 
 ## Verification (passed before pack)
 
 ```bash
-./entry/run.sh --headless --no-audio --resolution 1920x1080 --duration 5
+./entry/run.sh --headless --resolution 1920x1080 --duration 5
 python3 -m py_compile source/demo_player.py source/timeline.py source/engine/*.py
 grep -r "VideoCapture\|cv2" source/   # expect no matches in live path
 ```
@@ -87,9 +93,9 @@ zip -r ztothez_never_sleeps.zip submission/ \
   -x "*.pyc"
 
 unzip -l ztothez_never_sleeps.zip | grep -E '\.venv|__pycache__'   # should print nothing
-ls -lh ztothez_never_sleeps.zip   # expect ~550–600 MB, not ~800 MB+
+ls -lh ztothez_never_sleeps.zip   # expect approximately 223.4 MiB
 ```
 
 ## AI tools (summary)
 
-See `entry/readme.txt` for full disclosure. Code: Cursor/Claude. Visuals: Together FLUX.2-dev. Voice: Together Orpheus. Music: Stable Audio 3. Human: direction, timeline, sync.
+See `entry/readme.txt` for full disclosure. Code: Cursor/Claude; OpenAI Codex / GPT-5.5 for Phase 4 candidate implementation, optimization, deterministic validation and integration. Visuals: Together FLUX keyframes plus OpenAI / ChatGPT matched blackout frames. Voice: Together Orpheus. Music: Suno/Stable Audio 3. Human: direction, timeline, sync.

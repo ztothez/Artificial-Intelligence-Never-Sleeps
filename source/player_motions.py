@@ -26,6 +26,9 @@ def crop_rect(
     if motion == "zoom_in_slow":
         z = 1.0 + 0.28 * p
         cx, cy = 0.5, 0.5
+    elif motion == "static_full_frame":
+        z = 1.0
+        cx, cy = 0.5, 0.5
     elif motion == "zoom_in":
         z = 1.0 + 0.38 * p
         cx, cy = 0.5, 0.5

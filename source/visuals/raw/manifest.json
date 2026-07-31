@@ -38,5 +38,23 @@
     "url": "https://api.together.ai/shrt/sg1crpQ46PRB1QVT",
     "output": "source/visuals/raw/scene02e_neural.png",
     "generated_at": "2026-07-02T20:41:09.043875+00:00"
+  },
+  {
+    "stem": "scene11c_blackout_01_city_lights_on",
+    "model": "OpenAI / ChatGPT image generation",
+    "prompt": null,
+    "prompt_retained": false,
+    "provenance": "Matched city lights-on blackout frame for Phase 4 city power failure. Exact generation prompt was not retained.",
+    "output": "source/visuals/raw/scene11c_blackout_01_city_lights_on.png",
+    "sha256": "a6f65478c765cc245a3266a8f36c492703d9e0153bb116438883d85547b1cca7"
+  },
+  {
+    "stem": "scene11d_blackout_02_total_power_failure",
+    "model": "OpenAI / ChatGPT image generation",
+    "prompt": null,
+    "prompt_retained": false,
+    "provenance": "Matched total-power-failure blackout frame for Phase 4 city power failure. Exact generation prompt was not retained.",
+    "output": "source/visuals/raw/scene11d_blackout_02_total_power_failure.png",
+    "sha256": "a7464f12318afb4995c2424ad744e8bdde913ddaf29a7cdcb14c6eef2592e0a6"
   }
 ]

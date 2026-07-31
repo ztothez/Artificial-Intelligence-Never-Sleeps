@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from pathlib import Path
+import wave
 
 import numpy as np
-from scipy.io import wavfile
 
 SUB_BASS = (20, 150)
 TREBLE = (2000, 5000)
@@ -25,7 +25,24 @@ class AudioSpectrum:
         self._analyze(wav_path)
 
     def _analyze(self, wav_path: Path) -> None:
-        sr, data = wavfile.read(str(wav_path))
+        with wave.open(str(wav_path), "rb") as wav:
+            sr = wav.getframerate()
+            channels = wav.getnchannels()
+            sample_width = wav.getsampwidth()
+            frame_count = wav.getnframes()
+            raw = wav.readframes(frame_count)
+
+        if sample_width == 1:
+            data = np.frombuffer(raw, dtype=np.uint8).astype(np.int16) - 128
+        elif sample_width == 2:
+            data = np.frombuffer(raw, dtype="<i2")
+        elif sample_width == 4:
+            data = np.frombuffer(raw, dtype="<i4")
+        else:
+            raise ValueError(f"Unsupported WAV sample width: {sample_width * 8} bits")
+
+        if channels > 1:
+            data = data.reshape(-1, channels)
         if data.ndim > 1:
             data = data.mean(axis=1)
         data = data.astype(np.float32)

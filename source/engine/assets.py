@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pygame
+from PIL import Image
 
 from timeline import H, RAW_DIR, W
 
@@ -58,7 +59,12 @@ class AssetCache:
 
     def _raw_surface(self, name: str) -> pygame.Surface:
         if name not in self._raw_surfaces:
-            self._raw_surfaces[name] = pygame.image.load(str(self._path_for(name))).convert()
+            path = self._path_for(name)
+            # Pillow provides the same PNG/JPEG decoding on every platform.
+            # Some Linux pygame builds lack SDL_image and can only load BMPs.
+            with Image.open(path) as image:
+                rgb = np.asarray(image.convert("RGB"), dtype=np.uint8)
+            self._raw_surfaces[name] = self._rgb_array_to_surface(rgb).convert()
         return self._raw_surfaces[name]
 
     @staticmethod

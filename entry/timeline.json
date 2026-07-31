@@ -128,6 +128,15 @@
       "names": null
     },
     {
+      "kind": "raw",
+      "name": "scene09_pov",
+      "duration": 5.0,
+      "motion": "zoom_out",
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
       "kind": "tunnel",
       "name": "scene08_tunnel",
       "duration": 6.0,
@@ -138,9 +147,9 @@
     },
     {
       "kind": "raw",
-      "name": "scene11b_binary",
-      "duration": 5.0,
-      "motion": "pan_down",
+      "name": "scene10_threshold_awareness",
+      "duration": 4.5,
+      "motion": "zoom_in_slow",
       "loop": false,
       "fx": null,
       "names": null
@@ -156,9 +165,9 @@
     },
     {
       "kind": "raw",
-      "name": "scene09_pov",
+      "name": "scene11b_binary",
       "duration": 5.0,
-      "motion": "zoom_out",
+      "motion": "pan_down",
       "loop": false,
       "fx": null,
       "names": null
@@ -173,9 +182,27 @@
       "names": null
     },
     {
+      "kind": "raw",
+      "name": "scene11c_blackout_01_city_lights_on",
+      "duration": 2.5,
+      "motion": "static_full_frame",
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
+      "kind": "raw",
+      "name": "scene11d_blackout_02_total_power_failure",
+      "duration": 2.0,
+      "motion": "static_full_frame",
+      "loop": false,
+      "fx": null,
+      "names": null
+    },
+    {
       "kind": "black",
-      "name": "bridge_tagline",
-      "duration": 12.0,
+      "name": "bridge_tagline_void",
+      "duration": 3.0,
       "motion": null,
       "loop": false,
       "fx": null,

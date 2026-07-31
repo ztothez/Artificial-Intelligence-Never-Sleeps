@@ -9,14 +9,26 @@ import pygame
 
 # Match effects.py presets — optional vignette_strength, darken (multiply <1)
 FX_PRESETS = {
-    "inference": {"plasma_opacity": 0.38, "rotozoom": False, "vignette": True, "scanlines": True},
-    "graph": {"plasma_opacity": 0.30, "rotozoom": True, "vignette": True, "scanlines": False},
+    "inference": {
+        "plasma_opacity": 0.72,
+        "rotozoom": False,
+        "vignette": True,
+        "scanlines": True,
+        "vignette_strength": 0.55,
+    },
+    "graph": {
+        "plasma_opacity": 0.60,
+        "rotozoom": True,
+        "vignette": True,
+        "scanlines": False,
+        "vignette_strength": 0.53,
+    },
     "evolution": {
         "plasma_opacity": 0.0,
         "rotozoom": True,
         "vignette": True,
         "scanlines": False,
-        "vignette_strength": 0.65,
+        "vignette_strength": 0.70,
         "darken": 0.68,
     },
     "archive": {
@@ -24,7 +36,7 @@ FX_PRESETS = {
         "rotozoom": False,
         "vignette": True,
         "scanlines": False,
-        "vignette_strength": 0.58,
+        "vignette_strength": 0.63,
         "darken": 0.76,
     },
     "ui": {"plasma_opacity": 0.0, "rotozoom": False, "vignette": True, "scanlines": True},
@@ -36,7 +48,7 @@ _VIGNETTE_MASKS: dict[tuple[int, int, float], np.ndarray] = {}
 _PLASMA_CACHE: dict[tuple[int, int, int], pygame.Surface] = {}
 
 
-def _vignette_mask(width: int, height: int, strength: float = 0.45) -> np.ndarray:
+def _vignette_mask(width: int, height: int, strength: float = 0.50) -> np.ndarray:
     key = (width, height, strength)
     cached = _VIGNETTE_MASKS.get(key)
     if cached is not None:
@@ -78,10 +90,10 @@ def _plasma_surface(t: float, pw: int = 400, ph: int = 225) -> pygame.Surface:
     )
     wave = (wave - wave.min()) / (wave.max() - wave.min() + 1e-6)
 
-    hue_shift = 0.55 + 0.12 * math.sin(t * 2.0)
-    r = (wave * (120 + 80 * hue_shift)).astype(np.uint8)
-    g = (wave * (140 + 60 * (1 - hue_shift))).astype(np.uint8)
-    b = (180 + wave * 75).astype(np.uint8)
+    hue_shift = 0.55 + 0.16 * math.sin(t * 2.0)
+    r = (wave * (180 + 70 * hue_shift)).astype(np.uint8)
+    g = (wave * (175 + 90 * (1 - hue_shift))).astype(np.uint8)
+    b = (36 + wave * 219).astype(np.uint8)
     rgb = np.dstack([r, g, b])
 
     surf = pygame.image.frombuffer(rgb.tobytes(), (pw, ph), "RGB")
@@ -97,14 +109,17 @@ def _screen_blend(base: pygame.Surface, overlay: pygame.Surface, alpha: float) -
     b = pygame.surfarray.pixels3d(base)
     o = pygame.surfarray.pixels3d(overlay)
     a = np.float32(alpha)
-    out = 255.0 - (255.0 - b.astype(np.float32)) * (255.0 - o.astype(np.float32)) / 255.0 * a
+    base_f = b.astype(np.float32)
+    overlay_f = o.astype(np.float32)
+    screen = 255.0 - (255.0 - base_f) * (255.0 - overlay_f) / 255.0
+    out = base_f + (screen - base_f) * a
     result = base.copy()
     pygame.surfarray.blit_array(result, np.clip(out, 0, 255).astype(np.uint8))
     del b, o
     return result
 
 
-def _vignette(surf: pygame.Surface, strength: float = 0.45) -> pygame.Surface:
+def _vignette(surf: pygame.Surface, strength: float = 0.50) -> pygame.Surface:
     arr = pygame.surfarray.pixels3d(surf).astype(np.float32)
     arr *= _vignette_mask(surf.get_width(), surf.get_height(), strength)
     out = surf.copy()
@@ -113,7 +128,7 @@ def _vignette(surf: pygame.Surface, strength: float = 0.45) -> pygame.Surface:
     return out
 
 
-def _scanlines(surf: pygame.Surface, step: int = 4, alpha: int = 28) -> pygame.Surface:
+def _scanlines(surf: pygame.Surface, step: int = 4, alpha: int = 36) -> pygame.Surface:
     out = surf.copy()
     arr = pygame.surfarray.pixels3d(out)
     rows = np.arange(0, surf.get_height(), step)
@@ -144,7 +159,7 @@ def apply_fx(base: pygame.Surface, preset: str, t: float, size: Size | None = No
         out = _screen_blend(out, plasma, cfg["plasma_opacity"])
 
     if cfg["vignette"]:
-        out = _vignette(out, cfg.get("vignette_strength", 0.45))
+        out = _vignette(out, cfg.get("vignette_strength", 0.50))
     darken = cfg.get("darken", 1.0)
     if darken < 1.0:
         out = _darken(out, darken)

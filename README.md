@@ -1,101 +1,186 @@
-# Artificial Intelligence Never Sleeps — Assembly Summer 2026 Submission
+# Artificial Intelligence Never Sleeps
 
-**Compo:** AI Coding (Vibe Demo)  
-**Author:** ztothez  
-**Length:** 122.5s @ 1080p60
+A 2:02.5 audiovisual demo about intelligence emerging from cosmic history,
+passing through silicon and machine inference, and reaching a final question:
+what happens when the systems never stop? Twenty AI-generated still keyframes
+become a continuous 1080p60 production through deterministic camera motion,
+procedural terminal scenes, an inference tunnel, audio-reactive effects and a
+custom post-processing pipeline. No pre-rendered animation is played by the
+live engine.
 
-This folder is the **Partyman/USB submission package**. The parent `DemoScene/` repo is unchanged; only runtime deliverables are copied here.
+Built for—and qualified for—the Assembly Summer 2026 AI Coding (Vibe Demo)
+competition by **ztothez**.
 
-## Contents
+**[Watch Artificial Intelligence Never Sleeps on YouTube](https://www.youtube.com/watch?v=qPIk-mhv-rA)**
 
+[Download the 1080p60 compo capture](capture/compo.mp4)
+
+![Artificial Intelligence Never Sleeps](entry/screenshot.png)
+
+> [!IMPORTANT]
+> Live playback requires `source/audio/playback.wav`; there is deliberately no
+> quieter source-master fallback. The launchers create a Python virtual
+> environment and install dependencies, so the first launch needs Python 3.10+
+> and an internet connection. The finished MP4 can be watched without Python.
+
+## One engine, two playback paths
+
+The same Python renderer produces the live show and the final video. They are
+not separate implementations:
+
+```text
+source/timeline.py          24-segment, 122.5-second master timeline
+source/demo_player.py       live player and shared single-frame renderer
+source/parallel_dump.py     deterministic multiprocess frame renderer
+source/engine/              assets, FFT, terminal, tunnel and post-processing
+source/visuals/raw/         20 generated narrative keyframes
+source/audio/               final mix plus music and narration source masters
+entry/                      launchers, screenshot and organiser-facing metadata
+capture.sh                  validated 1080p60 H.264/AAC capture pipeline
+capture/compo.mp4           finished compo video, stored with Git LFS
 ```
-submission/
-├── entry/
-│   run.sh, run.bat          # launch real-time player
-│   readme.txt               # scene-style readme + AI disclosure
-│   file_id.diz              # file_id block
-│   screenshot.png           # 1920×1080 tagline-frame capture
-├── source/
-│   demo_player.py           # deterministic 60fps engine
-│   timeline.py, ui_manifest.json
-│   player_fx.py, player_motions.py, animate_raw.py
-│   engine/                  # FFT, terminal, tunnel, post-process, renderer
-│   visuals/raw/*.png        # 16× FLUX keyframes (16:9 narrative arc)
-│   audio/playback.wav       # approved final live mix, 48 kHz mono PCM
-│   audio/music.wav          # 3-act score source/FFT master
-│   audio/narration.wav      # voice source master
-├── capture.sh                 # deterministic final video capture builder
-├── capture/
-│   compo.mp4                # 1080p60 submission video (A/V muxed)
-└── requirements.txt         # runtime deps only (pygame-ce, numpy, Pillow)
-```
 
-**Excluded intentionally:** `visuals/ui/`, `visuals/animated/`, `rough_cut.mp4`, build scripts, API keys, `.venv`, raw frame dumps.
+Live playback uses the position of the approved audio mix as its master clock.
+If rendering falls behind, late visual frames are skipped instead of allowing
+sound and picture to drift apart. Offline rendering uses the exact frame clock
+`frame_index / 60`, so any requested frame is a pure function of its timeline
+position.
 
-## Run (jury / compo PC)
+Each frame follows the same pipeline:
+
+1. Locate the active segment on the master timeline.
+2. Sample bass and treble envelopes calculated from the music master.
+3. Transform or blend the relevant keyframe, or draw a procedural terminal or
+   tunnel scene.
+4. Apply scanlines, vignette, glitch, shake and cue-specific accents.
+5. Present the frame live or write it to the offline PNG sequence.
+
+The still images are source material, not frames from a pre-rendered animation.
+Motion, transitions, text, the binary tunnel and audio response are generated
+by the runtime.
+
+## Run the demo
+
+### Linux and macOS
 
 ```bash
-./entry/run.sh                         # audio-enabled fullscreen 1920×1080, ESC/Q quit
-./entry/run.sh --windowed --resolution 960x540   # preview window
-./entry/run.sh --headless --duration 5              # smoke test
+git clone https://github.com/ztothez/Artificial-Intelligence-Never-Sleeps.git
+cd Artificial-Intelligence-Never-Sleeps
+./entry/run.sh
 ```
 
-Windows: `entry\run.bat`
+### Windows
 
-First run creates `.venv`, upgrades pip, and installs compatible binary
-packages from `requirements.txt` for the detected Python version.
+Clone or download the repository, then run:
 
-## Video & audio
+```bat
+entry\run.bat
+```
 
-**Use this file for compo playback / upload:** `capture/compo.mp4`
+Both launchers create `.venv` when needed, upgrade `pip`, install the compatible
+binary packages from `requirements.txt`, and start the required final audio mix
+at unity gain.
+
+Useful modes:
+
+```text
+./entry/run.sh                                      fullscreen 1920×1080
+./entry/run.sh --windowed --resolution 960x540      smaller preview window
+./entry/run.sh --native-4k                          3840×2160 render canvas
+.venv/bin/python source/demo_player.py \
+  --headless --duration 5                           silent five-second smoke test
+```
+
+Press `Esc` or `Q` to quit. The mouse cursor is hidden during playback.
+
+To manage the environment manually instead:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python source/demo_player.py --audio
+```
+
+The runtime dependencies are intentionally small: `pygame-ce`, NumPy and
+Pillow.
+
+## Build the final capture
+
+The committed video is the official playback/upload artifact. Rebuilding it
+requires `ffmpeg` and `ffprobe` in addition to the Python dependencies:
+
+```bash
+ZTTZ_CAPTURE_WORKERS=8 ./capture.sh
+```
+
+`capture.sh` renders all 7,350 frames to `capture/raw_frames/`, verifies the
+complete 1920×1080 PNG sequence, encodes H.264 video, muxes the required final
+audio mix, validates every stream, and only then replaces
+`capture/compo.mp4`. Set `ZTTZ_CAPTURE_WORKERS` to a positive integer suitable
+for the machine; the default is 8.
+
+The raw frames and intermediate capture files are intentionally ignored by
+Git. The finished MP4 is tracked with Git LFS. If a clone contains only a small
+text pointer in its place, install Git LFS and run:
+
+```bash
+git lfs pull
+```
+
+## Video and audio
 
 | Property | Value |
-|----------|-------|
-| Video | 1920×1080, 60fps, **122.5s**, H.264 (from parallel frame dump) |
-| Audio | AAC mono, 48 kHz — approved final narration + music mix |
-| Live playback | Required `source/audio/playback.wav` at unity gain; same approved mix. The player stops with a clear error if it is missing—no quieter source-master fallback is used. |
-| Capture builder | Also requires and muxes `source/audio/playback.wav`; no preserved-video, music-only, or other alternate audio route is used. |
-| Loudness | **-15.61 LUFS** integrated, **-1.42 dBTP** |
-| Source masters | `music.wav` (also used for FFT) and `narration.wav` |
+|---|---|
+| Duration | 122.5 seconds / 7,350 frames |
+| Video | H.264, 1920×1080, 60 fps, YUV 4:2:0 |
+| Audio | AAC mono, 48 kHz |
+| Live master | `source/audio/playback.wav`, 48 kHz mono PCM |
+| Loudness | -15.61 LUFS integrated, -1.42 dBTP |
+| Source masters | `source/audio/music.wav` and `source/audio/narration.wav` |
 
-**Submission video:** `capture/compo.mp4` (122.5s, A/V muxed).
+`playback.wav` is the approved narration-and-music mix used by both the live
+player and capture builder. `music.wav` remains the source for the runtime FFT;
+`narration.wav` is retained as the voice source master. Alternate `compo*.mp4`
+files from development are not submission masters.
 
-The entry launchers pass `--audio` by default so the executable starts the
-approved final mix. Running `source/demo_player.py` directly remains silent
-unless `--audio` is passed. During live playback, the audio position is the
-master clock and late visual frames are dropped to preserve synchronization.
-Offline frame rendering remains deterministic.
+## AI-assisted production
 
-**Do not substitute** other `compo*.mp4` variants from the dev repo — only `submission/capture/compo.mp4` is the submission mix.
+This demo was built with AI tools under human direction. The production split
+was:
 
-## Verification (passed before pack)
+| Area | Tools and role |
+|---|---|
+| Code | Cursor / Claude for the engine, player, timeline and packaging; OpenAI Codex / GPT-5.5 for Phase 4 implementation, optimization, deterministic validation and integration |
+| Visuals | Together FLUX.1-schnell / FLUX.1.1-pro for narrative keyframes; OpenAI / ChatGPT image generation for the matched city lights-on and total-power-failure frames |
+| Voice | Together Orpheus TTS with ffmpeg robot post-processing |
+| Music | Suno / Stable Audio 3 via the original music-generation workflow |
+| Human | Direction, story, timeline, synchronization and copyright review |
+
+See [`entry/readme.txt`](entry/readme.txt) for the full organiser-facing AI and
+music disclosure, including hashes for the two matched blackout frames.
+
+## Verification
+
+The committed capture was validated as 1920×1080 H.264 at 60 fps with 48 kHz
+mono AAC audio and an exact duration of 122.5 seconds. The live and offline
+paths share `FrameRenderer`, preventing the two render implementations from
+drifting apart.
+
+Repository checks:
 
 ```bash
-./entry/run.sh --headless --resolution 1920x1080 --duration 5
+bash -n entry/run.sh capture.sh
 python3 -m py_compile source/demo_player.py source/timeline.py source/engine/*.py
-grep -r "VideoCapture\|cv2" source/   # expect no matches in live path
+.venv/bin/python source/demo_player.py --headless --duration 5
+ffprobe -v error -show_streams -show_format capture/compo.mp4
 ```
 
-## Zip for upload
+The live source does not use OpenCV or play a hidden video file; it renders the
+timeline from source assets and procedural effects.
 
-From parent directory. **Do not include `.venv`** — it is created on first `./entry/run.sh` run on the compo PC.
+## Competition status
 
-```bash
-cd /path/to/DemoScene
-
-# Remove local test venv if you ran smoke test inside submission/
-rm -rf submission/.venv submission/**/__pycache__
-
-zip -r ztothez_never_sleeps.zip submission/ \
-  -x "submission/.venv/*" \
-  -x "submission/*/__pycache__/*" \
-  -x "submission/*/*/__pycache__/*" \
-  -x "*.pyc"
-
-unzip -l ztothez_never_sleeps.zip | grep -E '\.venv|__pycache__'   # should print nothing
-ls -lh ztothez_never_sleeps.zip   # expect approximately 223.4 MiB
-```
-
-## AI tools (summary)
-
-See `entry/readme.txt` for full disclosure. Code: Cursor/Claude; OpenAI Codex / GPT-5.5 for Phase 4 candidate implementation, optimization, deterministic validation and integration. Visuals: Together FLUX keyframes plus OpenAI / ChatGPT matched blackout frames. Voice: Together Orpheus. Music: Suno/Stable Audio 3. Human: direction, timeline, sync.
+The entry qualified for the Assembly Summer 2026 AI Coding (Vibe Demo)
+competition. The field contained 22 entries. No numerical jury score or written
+jury comments were published for this entry.
